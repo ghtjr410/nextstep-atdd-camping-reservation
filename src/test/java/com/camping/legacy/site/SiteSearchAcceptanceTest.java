@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.List;
 
-import static com.camping.legacy.step.ReservationStep.createReservation;
+import static com.camping.legacy.step.ReservationStep.*;
 import static com.camping.legacy.step.SiteStep.searchSites;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,5 +67,22 @@ class SiteSearchAcceptanceTest extends AcceptanceTest {
         var response = searchSites(pastDate, endDate, null);
 
         assertThat(response.statusCode()).isIn(400, 500);
+    }
+
+    @Test
+    void 취소된_예약이_있는_사이트는_가용으로_표시() {
+        var startDate = LocalDate.now().plusDays(7);
+        var endDate = LocalDate.now().plusDays(9);
+        var createResponse = createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
+
+        var reservationId = createResponse.jsonPath().getLong("id");
+        var confirmationCode = createResponse.jsonPath().getString("confirmationCode");
+        cancelReservation(reservationId, confirmationCode);
+
+        var response = searchSites(startDate, endDate, null);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+        List<String> siteNumbers = response.jsonPath().getList("siteNumber", String.class);
+        assertThat(siteNumbers).contains(SITE_A1);
     }
 }

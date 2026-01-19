@@ -80,4 +80,14 @@ class ReservationCreateAcceptanceTest extends AcceptanceTest {
 
         assertThat(response.statusCode()).isEqualTo(201);
     }
+
+    @Test
+    void _30일_초과_예약하면_실패() {
+        var startDate = LocalDate.now().plusDays(1);
+        var endDate = LocalDate.now().plusDays(32);
+
+        var response = createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
+
+        assertThat(response.statusCode()).isEqualTo(409);
+    }
 }
