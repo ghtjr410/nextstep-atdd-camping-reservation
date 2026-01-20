@@ -1,5 +1,10 @@
 # 2단계 - 인수 테스트 구현
 
+## 코드 리뷰
+> PR 링크:
+> **[https://github.com/next-step/atdd-camping-reservation/pull/82](https://github.com/next-step/atdd-camping-reservation/pull/82)**
+
+
 ## 요구사항
 
 ### 1. RestAssured 테스트 환경 구축
