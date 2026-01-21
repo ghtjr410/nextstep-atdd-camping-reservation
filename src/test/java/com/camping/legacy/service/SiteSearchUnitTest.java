@@ -9,12 +9,17 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
@@ -36,31 +41,23 @@ class SiteSearchUnitTest {
     @DisplayName("검색 날짜 검증")
     class SearchDateValidation {
 
-        @Test
-        void 시작일이_null이면_예외() {
-            SiteSearchRequest request = createRequest(null, LocalDate.now().plusDays(5), null);
+        @ParameterizedTest(name = "시작일={0}, 종료일={1}이면 예외")
+        @MethodSource("nullDateProvider")
+        void 날짜가_null이면_예외(LocalDate startDate, LocalDate endDate) {
+            SiteSearchRequest request = createRequest(startDate, endDate, null);
 
             assertThatThrownBy(() -> siteService.searchAvailableSites(request))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("검색 기간을 선택해주세요.");
         }
 
-        @Test
-        void 종료일이_null이면_예외() {
-            SiteSearchRequest request = createRequest(LocalDate.now().plusDays(1), null, null);
-
-            assertThatThrownBy(() -> siteService.searchAvailableSites(request))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("검색 기간을 선택해주세요.");
-        }
-
-        @Test
-        void 시작일과_종료일_모두_null이면_예외() {
-            SiteSearchRequest request = createRequest(null, null, null);
-
-            assertThatThrownBy(() -> siteService.searchAvailableSites(request))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("검색 기간을 선택해주세요.");
+        static Stream<Arguments> nullDateProvider() {
+            LocalDate validDate = LocalDate.now().plusDays(5);
+            return Stream.of(
+                    Arguments.of(null, validDate),       // 시작일만 null
+                    Arguments.of(validDate, null),       // 종료일만 null
+                    Arguments.of(null, null)             // 둘 다 null
+            );
         }
 
         @Test
@@ -93,8 +90,8 @@ class SiteSearchUnitTest {
             SiteSearchRequest request = createRequest(sameDay, sameDay, null);
             given(campsiteRepository.findAll()).willReturn(java.util.Collections.emptyList());
 
-            // 예외가 발생하지 않으면 통과
-            siteService.searchAvailableSites(request);
+            assertThatCode(() -> siteService.searchAvailableSites(request))
+                    .doesNotThrowAnyException();
         }
     }
 
