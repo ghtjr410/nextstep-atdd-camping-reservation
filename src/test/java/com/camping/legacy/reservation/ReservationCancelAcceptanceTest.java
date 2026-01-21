@@ -48,6 +48,7 @@ class ReservationCancelAcceptanceTest extends AcceptanceTest {
         예약_상태가_CANCELLED_SAME_DAY인지_확인한다(예약);
     }
 
+    // Given
     private ExtractableResponse<Response> 일주일_후_예약을_생성한다() {
         var startDate = LocalDate.now().plusDays(7);
         var endDate = LocalDate.now().plusDays(9);
@@ -60,6 +61,7 @@ class ReservationCancelAcceptanceTest extends AcceptanceTest {
         return createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
     }
 
+    // When
     private void 예약을_취소한다(ExtractableResponse<Response> 예약) {
         var reservationId = 예약.jsonPath().getLong("id");
         var confirmationCode = 예약.jsonPath().getString("confirmationCode");
@@ -71,6 +73,7 @@ class ReservationCancelAcceptanceTest extends AcceptanceTest {
         return cancelReservation(reservationId, "WRONG1");
     }
 
+    // Then
     private void 예약_상태가_CANCELLED인지_확인한다(ExtractableResponse<Response> 예약) {
         var reservationId = 예약.jsonPath().getLong("id");
         var response = getReservation(reservationId);
