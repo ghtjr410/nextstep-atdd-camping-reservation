@@ -3,6 +3,8 @@ package com.camping.legacy.repository;
 import com.camping.legacy.domain.Campsite;
 import com.camping.legacy.domain.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -18,12 +20,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     Optional<Reservation> findByCampsiteIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long campsiteId, LocalDate endDate, LocalDate startDate);
 
-    boolean existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatus(
-            Campsite campsite, LocalDate endDate, LocalDate startDate, String status);
+    @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM Reservation r " +
+           "WHERE r.campsite = :campsite " +
+           "AND r.startDate <= :endDate " +
+           "AND r.endDate >= :startDate " +
+           "AND r.status = :status")
+    boolean hasOverlappingReservation(
+            @Param("campsite") Campsite campsite,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("status") String status);
 
     List<Reservation> findByCustomerName(String customerName);
 
     List<Reservation> findByCustomerNameAndPhoneNumber(String customerName, String phoneNumber);
-
-    boolean existsByCampsiteAndReservationDateAndStatus(Campsite campsite, LocalDate date, String status);
 }

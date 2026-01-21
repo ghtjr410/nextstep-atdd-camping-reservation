@@ -40,7 +40,8 @@ public class SiteService {
         List<SiteAvailabilityResponse> responses = new ArrayList<>();
         
         for (Campsite site : allSites) {
-            boolean isAvailable = !reservationRepository.existsByCampsiteAndReservationDateAndStatus(site, date, "CONFIRMED");
+            boolean isAvailable = !reservationRepository.hasOverlappingReservation(
+                    site, date, date, "CONFIRMED");
             
             responses.add(SiteAvailabilityResponse.builder()
                     .siteId(site.getId())
@@ -98,8 +99,8 @@ public class SiteService {
                 }
             }
 
-            boolean isAvailable = !reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatus(
-                    site, request.getEndDate(), request.getStartDate(), "CONFIRMED");
+            boolean isAvailable = !reservationRepository.hasOverlappingReservation(
+                    site, request.getStartDate(), request.getEndDate(), "CONFIRMED");
 
             if (isAvailable) {
                 // 사이트 크기 결정 (중복된 로직)
@@ -154,7 +155,7 @@ public class SiteService {
         Campsite campsite = campsiteRepository.findBySiteNumber(siteNumber)
                 .orElseThrow(() -> new RuntimeException("사이트를 찾을 수 없습니다: " + siteNumber));
 
-        return !reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatus(
+        return !reservationRepository.hasOverlappingReservation(
                 campsite, date, date, "CONFIRMED");
     }
 }
