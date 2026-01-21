@@ -80,7 +80,7 @@ class ReservationCreateUnitTest {
         @Test
         void 존재하지_않는_사이트면_예외() {
             ReservationRequest request = createRequest("Z-999", "홍길동", "010-1234-5678");
-            given(campsiteRepository.findBySiteNumber("Z-999")).willReturn(Optional.empty());
+            given(campsiteRepository.findBySiteNumberWithLock("Z-999")).willReturn(Optional.empty());
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -95,7 +95,7 @@ class ReservationCreateUnitTest {
         @Test
         void 시작일이_null이면_예외() {
             ReservationRequest request = createRequestWithDates("A-1", "홍길동", "010-1234-5678", null, LocalDate.now().plusDays(5));
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -105,7 +105,7 @@ class ReservationCreateUnitTest {
         @Test
         void 종료일이_null이면_예외() {
             ReservationRequest request = createRequestWithDates("A-1", "홍길동", "010-1234-5678", LocalDate.now().plusDays(1), null);
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -120,7 +120,7 @@ class ReservationCreateUnitTest {
         @Test
         void 고객명이_null이면_예외() {
             ReservationRequest request = createRequest("A-1", null, "010-1234-5678");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -130,7 +130,7 @@ class ReservationCreateUnitTest {
         @Test
         void 고객명이_빈문자열이면_예외() {
             ReservationRequest request = createRequest("A-1", "", "010-1234-5678");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -140,7 +140,7 @@ class ReservationCreateUnitTest {
         @Test
         void 고객명이_1자이면_예외() {
             ReservationRequest request = createRequest("A-1", "홍", "010-1234-5678");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -150,7 +150,7 @@ class ReservationCreateUnitTest {
         @Test
         void 고객명이_21자이상이면_예외() {
             ReservationRequest request = createRequest("A-1", "가나다라마바사아자차카타파하가나다라마바사", "010-1234-5678");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -160,7 +160,7 @@ class ReservationCreateUnitTest {
         @Test
         void 고객명이_경계값_2자이면_통과() {
             ReservationRequest request = createRequest("A-1", "홍길", "010-1234-5678");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
             given(reservationRepository.hasOverlappingReservation(
                     any(), any(), any(), any())).willReturn(false);
             given(reservationRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
@@ -172,7 +172,7 @@ class ReservationCreateUnitTest {
         @Test
         void 고객명이_경계값_20자이면_통과() {
             ReservationRequest request = createRequest("A-1", "가나다라마바사아자차카타파하가나다라마바", "010-1234-5678");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
             given(reservationRepository.hasOverlappingReservation(
                     any(), any(), any(), any())).willReturn(false);
             given(reservationRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
@@ -188,7 +188,7 @@ class ReservationCreateUnitTest {
         @Test
         void 전화번호가_9자리이면_예외() {
             ReservationRequest request = createRequest("A-1", "홍길동", "010-1234-56");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -198,7 +198,7 @@ class ReservationCreateUnitTest {
         @Test
         void 전화번호가_12자리이면_예외() {
             ReservationRequest request = createRequest("A-1", "홍길동", "010-1234-56789");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -208,7 +208,7 @@ class ReservationCreateUnitTest {
         @Test
         void 전화번호에_문자가_포함되면_예외() {
             ReservationRequest request = createRequest("A-1", "홍길동", "010-abcd-5678");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
 
             assertThatThrownBy(() -> reservationService.createReservation(request))
                     .isInstanceOf(RuntimeException.class)
@@ -218,7 +218,7 @@ class ReservationCreateUnitTest {
         @Test
         void 전화번호가_null이면_통과() {
             ReservationRequest request = createRequest("A-1", "홍길동", null);
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
             given(reservationRepository.hasOverlappingReservation(
                     any(), any(), any(), any())).willReturn(false);
             given(reservationRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
@@ -229,7 +229,7 @@ class ReservationCreateUnitTest {
         @Test
         void 전화번호가_경계값_10자리이면_통과() {
             ReservationRequest request = createRequest("A-1", "홍길동", "010-123-4567");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
             given(reservationRepository.hasOverlappingReservation(
                     any(), any(), any(), any())).willReturn(false);
             given(reservationRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
@@ -240,7 +240,7 @@ class ReservationCreateUnitTest {
         @Test
         void 전화번호가_경계값_11자리이면_통과() {
             ReservationRequest request = createRequest("A-1", "홍길동", "010-1234-5678");
-            given(campsiteRepository.findBySiteNumber("A-1")).willReturn(Optional.of(testCampsite));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
             given(reservationRepository.hasOverlappingReservation(
                     any(), any(), any(), any())).willReturn(false);
             given(reservationRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
