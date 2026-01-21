@@ -134,8 +134,8 @@ public class ReservationService {
             // ============================================================
             // STEP 4: 예약 가능 여부 확인
             // ============================================================
-            boolean hasConflict = reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                    campsite, endDate, startDate);
+            boolean hasConflict = reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatus(
+                    campsite, endDate, startDate, "CONFIRMED");
             if (hasConflict) {
                 throw new RuntimeException("해당 기간에 이미 예약이 존재합니다.");
             }
@@ -1040,8 +1040,8 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("사이트를 찾을 수 없습니다."));
 
         // 해당 날짜에 예약이 있는지 확인
-        boolean hasReservation = reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                campsite, date, date);
+        boolean hasReservation = reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatus(
+                campsite, date, date, "CONFIRMED");
 
         return !hasReservation;
     }

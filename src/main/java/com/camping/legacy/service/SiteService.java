@@ -40,7 +40,7 @@ public class SiteService {
         List<SiteAvailabilityResponse> responses = new ArrayList<>();
         
         for (Campsite site : allSites) {
-            boolean isAvailable = !reservationRepository.existsByCampsiteAndReservationDate(site, date);
+            boolean isAvailable = !reservationRepository.existsByCampsiteAndReservationDateAndStatus(site, date, "CONFIRMED");
             
             responses.add(SiteAvailabilityResponse.builder()
                     .siteId(site.getId())
@@ -98,12 +98,10 @@ public class SiteService {
                 }
             }
 
-            boolean startAvailable = !reservationRepository.existsByCampsiteAndReservationDate(
-                    site, request.getStartDate());
-            boolean endAvailable = !reservationRepository.existsByCampsiteAndReservationDate(
-                    site, request.getEndDate());
+            boolean isAvailable = !reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatus(
+                    site, request.getEndDate(), request.getStartDate(), "CONFIRMED");
 
-            if (startAvailable && endAvailable) {
+            if (isAvailable) {
                 // 사이트 크기 결정 (중복된 로직)
                 String size = "";
                 if (site.getSiteNumber().startsWith("A")) {
@@ -156,7 +154,7 @@ public class SiteService {
         Campsite campsite = campsiteRepository.findBySiteNumber(siteNumber)
                 .orElseThrow(() -> new RuntimeException("사이트를 찾을 수 없습니다: " + siteNumber));
 
-        return !reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                campsite, date, date);
+        return !reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndStatus(
+                campsite, date, date, "CONFIRMED");
     }
 }
