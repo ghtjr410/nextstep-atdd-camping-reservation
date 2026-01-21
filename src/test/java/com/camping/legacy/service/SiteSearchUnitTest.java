@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("사이트 검색 단위 테스트")
@@ -84,6 +85,16 @@ class SiteSearchUnitTest {
             assertThatThrownBy(() -> siteService.searchAvailableSites(request))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("과거 날짜는 검색할 수 없습니다.");
+        }
+
+        @Test
+        void 시작일과_종료일이_같으면_당일검색_가능() {
+            LocalDate sameDay = LocalDate.now().plusDays(5);
+            SiteSearchRequest request = createRequest(sameDay, sameDay, null);
+            given(campsiteRepository.findAll()).willReturn(java.util.Collections.emptyList());
+
+            // 예외가 발생하지 않으면 통과
+            siteService.searchAvailableSites(request);
         }
     }
 

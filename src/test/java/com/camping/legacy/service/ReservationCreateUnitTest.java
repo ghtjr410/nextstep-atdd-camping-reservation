@@ -111,6 +111,68 @@ class ReservationCreateUnitTest {
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("예약 기간을 선택해주세요.");
         }
+
+        @Test
+        void 종료일이_시작일보다_이전이면_예외() {
+            ReservationRequest request = createRequestWithDates("A-1", "홍길동", "010-1234-5678",
+                    LocalDate.now().plusDays(10), LocalDate.now().plusDays(5));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
+
+            assertThatThrownBy(() -> reservationService.createReservation(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("종료일이 시작일보다 이전일 수 없습니다.");
+        }
+
+        @Test
+        void 시작일이_과거이면_예외() {
+            ReservationRequest request = createRequestWithDates("A-1", "홍길동", "010-1234-5678",
+                    LocalDate.now().minusDays(1), LocalDate.now().plusDays(5));
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
+
+            assertThatThrownBy(() -> reservationService.createReservation(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("과거 날짜로 예약할 수 없습니다.");
+        }
+
+        @Test
+        void 예약기간이_30일이면_통과() {
+            LocalDate startDate = LocalDate.now().plusDays(1);
+            LocalDate endDate = startDate.plusDays(30);
+            ReservationRequest request = createRequestWithDates("A-1", "홍길동", "010-1234-5678", startDate, endDate);
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
+            given(reservationRepository.hasOverlappingReservation(any(), any(), any(), any())).willReturn(false);
+            given(reservationRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
+
+            reservationService.createReservation(request);
+        }
+
+        @Test
+        void 예약기간이_31일이면_예외() {
+            LocalDate startDate = LocalDate.now().plusDays(1);
+            LocalDate endDate = startDate.plusDays(31);
+            ReservationRequest request = createRequestWithDates("A-1", "홍길동", "010-1234-5678", startDate, endDate);
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
+
+            assertThatThrownBy(() -> reservationService.createReservation(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("예약 기간은 최대 30일입니다.");
+        }
+    }
+
+    @Nested
+    @DisplayName("중복 예약 검증")
+    class DuplicateReservationValidation {
+
+        @Test
+        void 해당_기간에_이미_예약이_존재하면_예외() {
+            ReservationRequest request = createRequest("A-1", "홍길동", "010-1234-5678");
+            given(campsiteRepository.findBySiteNumberWithLock("A-1")).willReturn(Optional.of(testCampsite));
+            given(reservationRepository.hasOverlappingReservation(any(), any(), any(), any())).willReturn(true);
+
+            assertThatThrownBy(() -> reservationService.createReservation(request))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("해당 기간에 이미 예약이 존재합니다.");
+        }
     }
 
     @Nested
