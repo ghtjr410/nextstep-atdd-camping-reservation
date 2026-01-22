@@ -2,7 +2,7 @@
 
 ## 코드 리뷰
 > PR 링크:
-> **[]()**
+> **[https://github.com/next-step/atdd-camping-reservation/pull/84](https://github.com/next-step/atdd-camping-reservation/pull/84)**
 
 ## 요구사항
 
