@@ -73,44 +73,37 @@ class ReservationCreateAcceptanceTest extends AcceptanceTest {
     private ExtractableResponse<Response> 일주일_후_예약을_생성한다() {
         var startDate = LocalDate.now().plusDays(7);
         var endDate = LocalDate.now().plusDays(9);
-        return createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
+        return 예약을_생성한다(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
     }
 
     private ExtractableResponse<Response> 과거_날짜로_예약을_생성한다() {
         var pastDate = LocalDate.now().minusDays(1);
         var endDate = LocalDate.now().plusDays(1);
-        return createReservation(CUSTOMER_NAME, pastDate, endDate, SITE_A1, PHONE_NUMBER);
+        return 예약을_생성한다(CUSTOMER_NAME, pastDate, endDate, SITE_A1, PHONE_NUMBER);
     }
 
     private ExtractableResponse<Response> 종료일이_시작일보다_이전인_예약을_생성한다() {
         var startDate = LocalDate.now().plusDays(10);
         var endDate = LocalDate.now().plusDays(5);
-        return createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
+        return 예약을_생성한다(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
     }
 
     private ExtractableResponse<Response> 겹치는_기간으로_예약을_생성한다() {
         var overlappingStart = LocalDate.now().plusDays(8);
         var overlappingEnd = LocalDate.now().plusDays(10);
-        return createReservation("김철수", overlappingStart, overlappingEnd, SITE_A1, "010-9999-8888");
+        return 예약을_생성한다("김철수", overlappingStart, overlappingEnd, SITE_A1, "010-9999-8888");
     }
 
     private ExtractableResponse<Response> 같은_기간으로_다른_고객이_예약한다() {
         var startDate = LocalDate.now().plusDays(7);
         var endDate = LocalDate.now().plusDays(9);
-        return createReservation("김철수", startDate, endDate, SITE_A1, "010-9999-8888");
+        return 예약을_생성한다("김철수", startDate, endDate, SITE_A1, "010-9999-8888");
     }
 
     private ExtractableResponse<Response> _30일_초과_예약을_생성한다() {
         var startDate = LocalDate.now().plusDays(1);
         var endDate = LocalDate.now().plusDays(32);
-        return createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
-    }
-
-    // When
-    private void 예약을_취소한다(ExtractableResponse<Response> 예약) {
-        var reservationId = 예약.jsonPath().getLong("id");
-        var confirmationCode = 예약.jsonPath().getString("confirmationCode");
-        cancelReservation(reservationId, confirmationCode);
+        return 예약을_생성한다(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
     }
 
     // Then

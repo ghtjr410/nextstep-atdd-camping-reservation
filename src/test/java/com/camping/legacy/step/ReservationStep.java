@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ReservationStep {
 
-    public static ExtractableResponse<Response> createReservation(String customerName, LocalDate startDate, LocalDate endDate, String siteNumber, String phoneNumber) {
+    public static ExtractableResponse<Response> 예약을_생성한다(String customerName, LocalDate startDate, LocalDate endDate, String siteNumber, String phoneNumber) {
         return RestAssured.given()
                 .log().all()
                 .contentType(ContentType.JSON)
@@ -28,7 +28,18 @@ public class ReservationStep {
                 .extract();
     }
 
-    public static ExtractableResponse<Response> cancelReservation(Long reservationId, String confirmationCode) {
+    public static ExtractableResponse<Response> 예약을_취소한다(ExtractableResponse<Response> 예약) {
+        var reservationId = 예약.jsonPath().getLong("id");
+        var confirmationCode = 예약.jsonPath().getString("confirmationCode");
+        return 예약을_취소한다(reservationId, confirmationCode);
+    }
+
+    public static ExtractableResponse<Response> 예약을_취소한다(ExtractableResponse<Response> 예약, String code) {
+        var reservationId = 예약.jsonPath().getLong("id");
+        return 예약을_취소한다(reservationId, code);
+    }
+
+    private static ExtractableResponse<Response> 예약을_취소한다(Long reservationId, String confirmationCode) {
         return RestAssured.given()
                 .log().all()
                 .queryParam("confirmationCode", confirmationCode)
@@ -39,7 +50,7 @@ public class ReservationStep {
                 .extract();
     }
 
-    public static ExtractableResponse<Response> getReservation(Long reservationId) {
+    public static ExtractableResponse<Response> 예약을_조회한다(Long reservationId) {
         return RestAssured.given()
                 .log().all()
             .when()

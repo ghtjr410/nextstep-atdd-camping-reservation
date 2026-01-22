@@ -71,19 +71,13 @@ class SiteSearchAcceptanceTest extends AcceptanceTest {
     private void 중간_날짜에_A1_사이트를_예약한다() {
         var reservationStart = LocalDate.now().plusDays(8);
         var reservationEnd = LocalDate.now().plusDays(10);
-        createReservation(CUSTOMER_NAME, reservationStart, reservationEnd, SITE_A1, PHONE_NUMBER);
+        예약을_생성한다(CUSTOMER_NAME, reservationStart, reservationEnd, SITE_A1, PHONE_NUMBER);
     }
 
     private ExtractableResponse<Response> 일주일_후_A1_사이트를_예약한다() {
         var startDate = LocalDate.now().plusDays(7);
         var endDate = LocalDate.now().plusDays(9);
-        return createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
-    }
-
-    private void 예약을_취소한다(ExtractableResponse<Response> 예약) {
-        var reservationId = 예약.jsonPath().getLong("id");
-        var confirmationCode = 예약.jsonPath().getString("confirmationCode");
-        cancelReservation(reservationId, confirmationCode);
+        return 예약을_생성한다(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
     }
 
     // When

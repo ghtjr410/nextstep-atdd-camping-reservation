@@ -34,7 +34,7 @@ class ReservationCancelAcceptanceTest extends AcceptanceTest {
     void 잘못된_확인코드로_취소하면_실패() {
         var 예약 = 일주일_후_예약을_생성한다();
 
-        var 응답 = 잘못된_확인코드로_예약을_취소한다(예약);
+        var 응답 = 잘못된_코드로_예약을_취소한다(예약);
 
         취소_요청이_실패했는지_확인한다(응답);
     }
@@ -52,37 +52,30 @@ class ReservationCancelAcceptanceTest extends AcceptanceTest {
     private ExtractableResponse<Response> 일주일_후_예약을_생성한다() {
         var startDate = LocalDate.now().plusDays(7);
         var endDate = LocalDate.now().plusDays(9);
-        return createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
+        return 예약을_생성한다(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
     }
 
     private ExtractableResponse<Response> 당일_시작_예약을_생성한다() {
         var startDate = LocalDate.now();
         var endDate = LocalDate.now().plusDays(2);
-        return createReservation(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
+        return 예약을_생성한다(CUSTOMER_NAME, startDate, endDate, SITE_A1, PHONE_NUMBER);
     }
 
     // When
-    private void 예약을_취소한다(ExtractableResponse<Response> 예약) {
-        var reservationId = 예약.jsonPath().getLong("id");
-        var confirmationCode = 예약.jsonPath().getString("confirmationCode");
-        cancelReservation(reservationId, confirmationCode);
-    }
-
-    private ExtractableResponse<Response> 잘못된_확인코드로_예약을_취소한다(ExtractableResponse<Response> 예약) {
-        var reservationId = 예약.jsonPath().getLong("id");
-        return cancelReservation(reservationId, "WRONG1");
+    private ExtractableResponse<Response> 잘못된_코드로_예약을_취소한다(ExtractableResponse<Response> 예약) {
+        return 예약을_취소한다(예약, "WRONG");
     }
 
     // Then
     private void 예약_상태가_CANCELLED인지_확인한다(ExtractableResponse<Response> 예약) {
         var reservationId = 예약.jsonPath().getLong("id");
-        var response = getReservation(reservationId);
+        var response = 예약을_조회한다(reservationId);
         assertThat(response.jsonPath().getString("status")).isEqualTo("CANCELLED");
     }
 
     private void 예약_상태가_CANCELLED_SAME_DAY인지_확인한다(ExtractableResponse<Response> 예약) {
         var reservationId = 예약.jsonPath().getLong("id");
-        var response = getReservation(reservationId);
+        var response = 예약을_조회한다(reservationId);
         assertThat(response.jsonPath().getString("status")).isEqualTo("CANCELLED_SAME_DAY");
     }
 
