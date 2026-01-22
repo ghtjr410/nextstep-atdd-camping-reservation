@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -49,7 +50,9 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final CampsiteRepository campsiteRepository;
-    
+    private final PriceCalculator priceCalculator;
+    private final PointCalculator pointCalculator;
+
     private static final int MAX_RESERVATION_DAYS = 30;
     
     /**
@@ -69,208 +72,199 @@ public class ReservationService {
         String phoneNumber = request.getPhoneNumber();
 
         // ============================================================
-        // STEP 2: 기본 검증 (중첩 레벨 1)
+        // STEP 2: 기본 검증
         // ============================================================
         if (siteNumber == null || siteNumber.trim().isEmpty()) {
             throw new RuntimeException("사이트 번호를 입력해주세요.");
-        } else {
-            // 사이트 존재 여부 확인 (중첩 레벨 2)
-            Campsite campsite = campsiteRepository.findBySiteNumber(siteNumber)
-                    .orElseThrow(() -> new RuntimeException("존재하지 않는 캠핑장입니다."));
-
-            // 날짜 검증 (중첩 레벨 2)
-            if (startDate == null || endDate == null) {
-                throw new RuntimeException("예약 기간을 선택해주세요.");
-            } else {
-                // 날짜 논리 검증 (중첩 레벨 3)
-                if (endDate.isBefore(startDate)) {
-                    throw new RuntimeException("종료일이 시작일보다 이전일 수 없습니다.");
-                } else {
-                    // 과거 날짜 체크 (중첩 레벨 4)
-                    LocalDate today = LocalDate.now();
-                    if (startDate.isBefore(today)) {
-                        throw new RuntimeException("과거 날짜로 예약할 수 없습니다.");
-                    } else {
-                        // 예약 기간 체크 (30일 이내)
-                        long days = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate);
-                        if (days > 30) {
-                            throw new RuntimeException("예약 기간은 최대 30일입니다.");
-                        }
-                    }
-                }
-            }
-
-            // ============================================================
-            // STEP 3: 고객 정보 검증
-            // ============================================================
-            if (customerName == null || customerName.trim().isEmpty()) {
-                throw new RuntimeException("예약자 이름을 입력해주세요.");
-            } else {
-                // 이름 길이 체크
-                if (customerName.length() < 2) {
-                    throw new RuntimeException("예약자 이름은 최소 2자 이상이어야 합니다.");
-                } else if (customerName.length() > 20) {
-                    throw new RuntimeException("예약자 이름은 최대 20자까지 가능합니다.");
-                }
-            }
-
-            // 전화번호 검증
-            if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
-                String cleaned = phoneNumber.replaceAll("-", "");
-                if (cleaned.length() < 10) {
-                    throw new RuntimeException("전화번호 형식이 올바르지 않습니다.");
-                } else if (cleaned.length() > 11) {
-                    throw new RuntimeException("전화번호 형식이 올바르지 않습니다.");
-                } else {
-                    // 숫자인지 확인
-                    try {
-                        Long.parseLong(cleaned);
-                    } catch (NumberFormatException e) {
-                        throw new RuntimeException("전화번호는 숫자만 입력 가능합니다.");
-                    }
-                }
-            }
-
-            // ============================================================
-            // STEP 4: 예약 가능 여부 확인
-            // ============================================================
-            boolean hasConflict = reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                    campsite, endDate, startDate);
-            if (hasConflict) {
-                throw new RuntimeException("해당 기간에 이미 예약이 존재합니다.");
-            }
-
-            // ============================================================
-            // STEP 5: 가격 계산
-            // ============================================================
-            int totalPrice = 0;
-            LocalDate current = startDate;
-            while (!current.isAfter(endDate)) {
-                int dailyPrice = 0;
-
-                // 사이트 종류별 기본 가격
-                if (siteNumber.startsWith("A")) {
-                    dailyPrice = 80000; // 대형
-                } else if (siteNumber.startsWith("B")) {
-                    dailyPrice = 50000; // 소형
-                } else {
-                    dailyPrice = 60000; // 기타
-                }
-
-                // 주말 체크
-                java.time.DayOfWeek dayOfWeek = current.getDayOfWeek();
-                boolean isWeekend = (dayOfWeek == java.time.DayOfWeek.SATURDAY ||
-                                   dayOfWeek == java.time.DayOfWeek.SUNDAY);
-
-                // 성수기 체크 (7월, 8월)
-                int month = current.getMonthValue();
-                boolean isPeakSeason = (month >= 7 && month <= 8);
-
-                // 할증 적용
-                if (isWeekend && isPeakSeason) {
-                    dailyPrice = (int) (dailyPrice * 1.7); // 70% 할증
-                } else if (isPeakSeason) {
-                    dailyPrice = (int) (dailyPrice * 1.5); // 50% 할증
-                } else if (isWeekend) {
-                    dailyPrice = (int) (dailyPrice * 1.3); // 30% 할증
-                }
-
-                totalPrice += dailyPrice;
-                current = current.plusDays(1);
-            }
-
-            log.info("예약 금액 계산 완료: {}원", totalPrice);
-
-            // ============================================================
-            // STEP 6: 포인트 계산
-            // ============================================================
-            double pointRate = 0.05; // 기본 5%
-            current = startDate;
-            boolean hasWeekend = false;
-            while (!current.isAfter(endDate)) {
-                java.time.DayOfWeek dayOfWeek = current.getDayOfWeek();
-                if (dayOfWeek == java.time.DayOfWeek.SATURDAY ||
-                    dayOfWeek == java.time.DayOfWeek.SUNDAY) {
-                    hasWeekend = true;
-                    break;
-                }
-                current = current.plusDays(1);
-            }
-
-            if (hasWeekend) {
-                pointRate = 0.10; // 주말 10%
-            }
-
-            int earnedPoints = (int) (totalPrice * pointRate);
-            log.info("적립 포인트 계산 완료: {}P", earnedPoints);
-
-            // ============================================================
-            // STEP 7: 동시성 문제 재현을 위한 지연
-            // ============================================================
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-
-            // ============================================================
-            // STEP 8: 예약 객체 생성
-            // ============================================================
-            Reservation reservation = new Reservation();
-            reservation.setCustomerName(customerName);
-            reservation.setStartDate(startDate);
-            reservation.setEndDate(endDate);
-            reservation.setReservationDate(startDate);
-            reservation.setCampsite(campsite);
-            reservation.setPhoneNumber(phoneNumber);
-
-            // 확인 코드 생성
-            String confirmationCode = "";
-            Random random = new Random();
-            for (int i = 0; i < 6; i++) {
-                int choice = random.nextInt(36);
-                if (choice < 10) {
-                    confirmationCode += (char) ('0' + choice);
-                } else {
-                    confirmationCode += (char) ('A' + (choice - 10));
-                }
-            }
-            reservation.setConfirmationCode(confirmationCode);
-
-            // ============================================================
-            // STEP 9: 예약 저장
-            // ============================================================
-            Reservation saved = reservationRepository.save(reservation);
-            log.info("예약 저장 완료: ID={}", saved.getId());
-
-            // ============================================================
-            // STEP 10: 알림 발송 (시뮬레이션)
-            // ============================================================
-            log.info("===========================================");
-            log.info("[예약 확인 알림]");
-            log.info("고객명: {}", saved.getCustomerName());
-            log.info("전화번호: {}", saved.getPhoneNumber());
-            log.info("예약 기간: {} ~ {}", saved.getStartDate(), saved.getEndDate());
-            log.info("확인 코드: {}", saved.getConfirmationCode());
-            log.info("결제 금액: {}원", totalPrice);
-            log.info("적립 포인트: {}P", earnedPoints);
-            log.info("===========================================");
-
-            // ============================================================
-            // STEP 11: 응답 객체 생성 (직접 변환)
-            // ============================================================
-            ReservationResponse response = new ReservationResponse();
-            response.setId(saved.getId());
-            response.setCustomerName(saved.getCustomerName());
-            response.setStartDate(saved.getStartDate());
-            response.setEndDate(saved.getEndDate());
-            response.setPhoneNumber(saved.getPhoneNumber());
-            response.setSiteNumber(saved.getCampsite().getSiteNumber());
-            response.setConfirmationCode(saved.getConfirmationCode());
-            response.setStatus(saved.getStatus());
-
-            return response;
         }
+        // 사이트 존재 여부 확인 (Pessimistic Lock으로 동시성 제어)
+        Campsite campsite = campsiteRepository.findBySiteNumberWithLock(siteNumber)
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 캠핑장입니다."));
+
+        // 날짜 검증
+        if (startDate == null || endDate == null) {
+            throw new RuntimeException("예약 기간을 선택해주세요.");
+        }
+
+        // 날짜 논리 검증
+        if (endDate.isBefore(startDate)) {
+            throw new RuntimeException("종료일이 시작일보다 이전일 수 없습니다.");
+        }
+
+        // 과거 날짜 체크
+        LocalDate today = LocalDate.now();
+        if (startDate.isBefore(today)) {
+            throw new RuntimeException("과거 날짜로 예약할 수 없습니다.");
+        }
+
+        // 예약 기간 체크 (30일 이내)
+        long days = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate);
+        if (days > 30) {
+            throw new RuntimeException("예약 기간은 최대 30일입니다.");
+        }
+
+        // ============================================================
+        // STEP 3: 고객 정보 검증
+        // ============================================================
+        if (customerName == null || customerName.trim().isEmpty()) {
+            throw new RuntimeException("예약자 이름을 입력해주세요.");
+        }
+        if (customerName.length() < 2) {
+            throw new RuntimeException("예약자 이름은 최소 2자 이상이어야 합니다.");
+        }
+
+        if (customerName.length() > 20) {
+            throw new RuntimeException("예약자 이름은 최대 20자까지 가능합니다.");
+        }
+
+        // 전화번호 검증
+        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+            String cleaned = phoneNumber.replaceAll("-", "");
+
+            if (cleaned.length() < 10) {
+                throw new RuntimeException("전화번호 형식이 올바르지 않습니다.");
+            }
+            if (cleaned.length() > 11) {
+                throw new RuntimeException("전화번호 형식이 올바르지 않습니다.");
+            }
+
+            try {
+                Long.parseLong(cleaned);
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("전화번호는 숫자만 입력 가능합니다.");
+            }
+        }
+
+        // ============================================================
+        // STEP 4: 예약 가능 여부 확인
+        // ============================================================
+        boolean hasConflict = reservationRepository.hasOverlappingReservation(
+                campsite, startDate, endDate, "CONFIRMED");
+        if (hasConflict) {
+            throw new RuntimeException("해당 기간에 이미 예약이 존재합니다.");
+        }
+
+        // ============================================================
+        // STEP 5: 가격 계산
+        // ============================================================
+        int totalPrice = 0;
+        LocalDate current = startDate;
+        while (!current.isAfter(endDate)) {
+            int dailyPrice = 0;
+
+            // 사이트 종류별 기본 가격
+            if (siteNumber.startsWith("A")) {
+                dailyPrice = 80000; // 대형
+            } else if (siteNumber.startsWith("B")) {
+                dailyPrice = 50000; // 소형
+            } else {
+                dailyPrice = 60000; // 기타
+            }
+
+            // 주말 체크
+            java.time.DayOfWeek dayOfWeek = current.getDayOfWeek();
+            boolean isWeekend = (dayOfWeek == java.time.DayOfWeek.SATURDAY ||
+                               dayOfWeek == java.time.DayOfWeek.SUNDAY);
+
+            // 성수기 체크 (7월, 8월)
+            int month = current.getMonthValue();
+            boolean isPeakSeason = (month >= 7 && month <= 8);
+
+            // 할증 적용
+            if (isWeekend && isPeakSeason) {
+                dailyPrice = (int) (dailyPrice * 1.7); // 70% 할증
+            } else if (isPeakSeason) {
+                dailyPrice = (int) (dailyPrice * 1.5); // 50% 할증
+            } else if (isWeekend) {
+                dailyPrice = (int) (dailyPrice * 1.3); // 30% 할증
+            }
+
+            totalPrice += dailyPrice;
+            current = current.plusDays(1);
+        }
+
+        log.info("예약 금액 계산 완료: {}원", totalPrice);
+
+        // ============================================================
+        // STEP 6: 포인트 계산
+        // ============================================================
+        double pointRate = 0.05; // 기본 5%
+        current = startDate;
+        boolean hasWeekend = false;
+        while (!current.isAfter(endDate)) {
+            java.time.DayOfWeek dayOfWeek = current.getDayOfWeek();
+            if (dayOfWeek == java.time.DayOfWeek.SATURDAY ||
+                dayOfWeek == java.time.DayOfWeek.SUNDAY) {
+                hasWeekend = true;
+                break;
+            }
+            current = current.plusDays(1);
+        }
+
+        if (hasWeekend) {
+            pointRate = 0.10; // 주말 10%
+        }
+
+        int earnedPoints = (int) (totalPrice * pointRate);
+        log.info("적립 포인트 계산 완료: {}P", earnedPoints);
+
+        // ============================================================
+        // STEP 7: 동시성 문제 재현을 위한 지연
+        // ============================================================
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // ============================================================
+        // STEP 8: 예약 객체 생성
+        // ============================================================
+        Reservation reservation = new Reservation();
+        reservation.setCustomerName(customerName);
+        reservation.setStartDate(startDate);
+        reservation.setEndDate(endDate);
+        reservation.setReservationDate(LocalDate.now());
+        reservation.setCampsite(campsite);
+        reservation.setPhoneNumber(phoneNumber);
+
+        // 확인 코드 생성
+        String confirmationCode = "";
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            int choice = random.nextInt(36);
+
+            if (choice < 10) {
+                confirmationCode += (char) ('0' + choice);
+            } else {
+                confirmationCode += (char) ('A' + (choice - 10));
+            }
+        }
+        reservation.setConfirmationCode(confirmationCode);
+
+        // ============================================================
+        // STEP 9: 예약 저장
+        // ============================================================
+        reservationRepository.save(reservation);
+        log.info("예약 저장 완료: ID={}", reservation.getId());
+
+        // ============================================================
+        // STEP 10: 알림 발송 (시뮬레이션)
+        // ============================================================
+        log.info("===========================================");
+        log.info("[예약 확인 알림]");
+        log.info("고객명: {}", reservation.getCustomerName());
+        log.info("전화번호: {}", reservation.getPhoneNumber());
+        log.info("예약 기간: {} ~ {}", reservation.getStartDate(), reservation.getEndDate());
+        log.info("확인 코드: {}", reservation.getConfirmationCode());
+        log.info("결제 금액: {}원", totalPrice);
+        log.info("적립 포인트: {}P", earnedPoints);
+        log.info("===========================================");
+
+        // ============================================================
+        // STEP 11: 응답 객체 생성 (정적 팩터리 메서드)
+        // ============================================================
+        return ReservationResponse.from(reservation);
     }
     
     @Transactional(readOnly = true)
@@ -302,8 +296,8 @@ public class ReservationService {
     public void cancelReservation(Long id, String confirmationCode) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("예약을 찾을 수 없습니다."));
-        
-        if (!reservation.getConfirmationCode().equals(confirmationCode)) {
+
+        if (!Objects.equals(reservation.getConfirmationCode(), confirmationCode)) {
             throw new RuntimeException("확인 코드가 일치하지 않습니다.");
         }
         
@@ -859,117 +853,39 @@ public class ReservationService {
     }
 
     //========================================
-    // 가격 계산 기능
+    // 가격 계산 기능 (PriceCalculator 위임)
     //========================================
 
     /**
      * 예약 가격 계산
-     * - 기본 가격: 소형 50,000원, 대형 80,000원 (1박 기준)
-     * - 주말 할증: 30% 추가
-     * - 성수기 할증: 50% 추가
-     * - 성수기 주말: 70% 추가
      */
     public int calculateReservationPrice(LocalDate startDate, LocalDate endDate, String siteNumber) {
-        // 사이트 종류에 따른 기본 가격
-        int basePrice = 0;
-        if (siteNumber.startsWith("A")) {
-            // 대형 사이트
-            basePrice = 80000;
-        } else if (siteNumber.startsWith("B")) {
-            // 소형 사이트
-            basePrice = 50000;
-        } else {
-            // 기타
-            basePrice = 60000;
-        }
-
-        int totalPrice = 0;
-        LocalDate current = startDate;
-
-        // 날짜별로 가격 계산
-        while (!current.isAfter(endDate)) {
-            int dailyPrice = basePrice;
-
-            // 주말 확인
-            boolean isWeekend = DateUtils.isWeekend(current);
-            // 성수기 확인
-            boolean isPeakSeason = DateUtils.isPeakSeason(current);
-
-            // 할증 적용
-            if (isWeekend && isPeakSeason) {
-                // 성수기 주말: 70% 할증
-                dailyPrice = (int) (basePrice * 1.7);
-            } else if (isPeakSeason) {
-                // 성수기: 50% 할증
-                dailyPrice = (int) (basePrice * 1.5);
-            } else if (isWeekend) {
-                // 주말: 30% 할증
-                dailyPrice = (int) (basePrice * 1.3);
-            }
-
-            totalPrice += dailyPrice;
-            current = current.plusDays(1);
-        }
-
-        return totalPrice;
+        return priceCalculator.calculate(startDate, endDate, siteNumber);
     }
 
     /**
      * 예약 가격 계산 (Reservation 객체로)
      */
     public int calculatePrice(Reservation reservation) {
-        return calculateReservationPrice(
-                reservation.getStartDate(),
-                reservation.getEndDate(),
-                reservation.getCampsite().getSiteNumber()
-        );
+        return priceCalculator.calculate(reservation);
     }
 
     //========================================
-    // 포인트 계산 기능
+    // 포인트 계산 기능 (PointCalculator 위임)
     //========================================
 
     /**
      * 포인트 적립 계산
-     * - 기본: 결제 금액의 5% 적립
-     * - 주말: 10% 적립
-     * - 성수기: 3% 적립 (할인)
      */
     public int calculatePoints(LocalDate startDate, LocalDate endDate, int totalPrice) {
-        // 주말 예약인지 확인
-        boolean hasWeekend = false;
-        LocalDate current = startDate;
-        while (!current.isAfter(endDate)) {
-            if (DateUtils.isWeekend(current)) {
-                hasWeekend = true;
-                break;
-            }
-            current = current.plusDays(1);
-        }
-
-        // 성수기 예약인지 확인
-        boolean isPeakSeason = DateUtils.isPeakSeason(startDate);
-
-        // 포인트 비율 결정
-        double pointRate = 0.05; // 기본 5%
-
-        if (hasWeekend) {
-            pointRate = 0.10; // 주말 10%
-        } else if (isPeakSeason) {
-            pointRate = 0.03; // 성수기 3%
-        }
-
-        // 포인트 계산
-        int points = (int) (totalPrice * pointRate);
-        return points;
+        return pointCalculator.calculate(startDate, endDate, totalPrice);
     }
 
     /**
      * 예약에 대한 포인트 계산
      */
     public int calculateReservationPoints(Reservation reservation) {
-        int price = calculatePrice(reservation);
-        return calculatePoints(reservation.getStartDate(), reservation.getEndDate(), price);
+        return pointCalculator.calculate(reservation);
     }
 
     //========================================
@@ -1040,8 +956,8 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("사이트를 찾을 수 없습니다."));
 
         // 해당 날짜에 예약이 있는지 확인
-        boolean hasReservation = reservationRepository.existsByCampsiteAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                campsite, date, date);
+        boolean hasReservation = reservationRepository.hasOverlappingReservation(
+                campsite, date, date, "CONFIRMED");
 
         return !hasReservation;
     }

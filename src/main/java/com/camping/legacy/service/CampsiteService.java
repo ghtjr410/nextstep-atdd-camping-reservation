@@ -34,6 +34,7 @@ public class CampsiteService {
     
     public boolean isAvailable(String siteNumber, LocalDate date) {
         Campsite campsite = getCampsiteBySiteNumber(siteNumber);
-        return !reservationRepository.existsByCampsiteAndReservationDate(campsite, date);
+        return !reservationRepository.hasOverlappingReservation(
+                campsite, date, date, "CONFIRMED");
     }
 }
