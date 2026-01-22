@@ -5,45 +5,45 @@ import com.camping.legacy.domain.Campsite;
 /**
  * Campsite 테스트 데이터 빌더
  */
-public class CampsiteBuilder {
+public class CampsiteTestBuilder {
 
     private Long id = 1L;
     private String siteNumber = "A-1";
     private int maxPeople = 6;
     private String description = "테스트 캠프사이트";
 
-    public static CampsiteBuilder aCampsite() {
-        return new CampsiteBuilder();
+    public static CampsiteTestBuilder aCampsite() {
+        return new CampsiteTestBuilder();
     }
 
-    public static CampsiteBuilder aLargeSite() {
-        return new CampsiteBuilder()
+    public static CampsiteTestBuilder aLargeSite() {
+        return new CampsiteTestBuilder()
                 .withSiteNumber("A-1")
                 .withMaxPeople(6);
     }
 
-    public static CampsiteBuilder aSmallSite() {
-        return new CampsiteBuilder()
+    public static CampsiteTestBuilder aSmallSite() {
+        return new CampsiteTestBuilder()
                 .withSiteNumber("B-1")
                 .withMaxPeople(4);
     }
 
-    public CampsiteBuilder withId(Long id) {
+    public CampsiteTestBuilder withId(Long id) {
         this.id = id;
         return this;
     }
 
-    public CampsiteBuilder withSiteNumber(String siteNumber) {
+    public CampsiteTestBuilder withSiteNumber(String siteNumber) {
         this.siteNumber = siteNumber;
         return this;
     }
 
-    public CampsiteBuilder withMaxPeople(int maxPeople) {
+    public CampsiteTestBuilder withMaxPeople(int maxPeople) {
         this.maxPeople = maxPeople;
         return this;
     }
 
-    public CampsiteBuilder withDescription(String description) {
+    public CampsiteTestBuilder withDescription(String description) {
         this.description = description;
         return this;
     }

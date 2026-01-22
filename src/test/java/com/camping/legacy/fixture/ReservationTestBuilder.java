@@ -8,7 +8,7 @@ import java.time.LocalDate;
 /**
  * Reservation 테스트 데이터 빌더
  */
-public class ReservationBuilder {
+public class ReservationTestBuilder {
 
     private Long id = 1L;
     private String customerName = "홍길동";
@@ -19,72 +19,72 @@ public class ReservationBuilder {
     private String confirmationCode = "ABC123";
     private Campsite campsite;
 
-    public static ReservationBuilder aReservation() {
-        return new ReservationBuilder();
+    public static ReservationTestBuilder aReservation() {
+        return new ReservationTestBuilder();
     }
 
-    public ReservationBuilder withId(Long id) {
+    public ReservationTestBuilder withId(Long id) {
         this.id = id;
         return this;
     }
 
-    public ReservationBuilder withCustomerName(String customerName) {
+    public ReservationTestBuilder withCustomerName(String customerName) {
         this.customerName = customerName;
         return this;
     }
 
-    public ReservationBuilder withPhoneNumber(String phoneNumber) {
+    public ReservationTestBuilder withPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
         return this;
     }
 
-    public ReservationBuilder withStartDate(LocalDate startDate) {
+    public ReservationTestBuilder withStartDate(LocalDate startDate) {
         this.startDate = startDate;
         return this;
     }
 
-    public ReservationBuilder withEndDate(LocalDate endDate) {
+    public ReservationTestBuilder withEndDate(LocalDate endDate) {
         this.endDate = endDate;
         return this;
     }
 
-    public ReservationBuilder withDates(LocalDate startDate, LocalDate endDate) {
+    public ReservationTestBuilder withDates(LocalDate startDate, LocalDate endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
         return this;
     }
 
-    public ReservationBuilder withStatus(String status) {
+    public ReservationTestBuilder withStatus(String status) {
         this.status = status;
         return this;
     }
 
-    public ReservationBuilder withConfirmationCode(String confirmationCode) {
+    public ReservationTestBuilder withConfirmationCode(String confirmationCode) {
         this.confirmationCode = confirmationCode;
         return this;
     }
 
-    public ReservationBuilder withCampsite(Campsite campsite) {
+    public ReservationTestBuilder withCampsite(Campsite campsite) {
         this.campsite = campsite;
         return this;
     }
 
-    public ReservationBuilder cancelled() {
+    public ReservationTestBuilder cancelled() {
         this.status = "CANCELLED";
         return this;
     }
 
-    public ReservationBuilder cancelledSameDay() {
+    public ReservationTestBuilder cancelledSameDay() {
         this.status = "CANCELLED_SAME_DAY";
         return this;
     }
 
-    public ReservationBuilder startingToday() {
+    public ReservationTestBuilder startingToday() {
         this.startDate = LocalDate.now();
         return this;
     }
 
-    public ReservationBuilder startingTomorrow() {
+    public ReservationTestBuilder startingTomorrow() {
         this.startDate = LocalDate.now().plusDays(1);
         return this;
     }

@@ -21,8 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static com.camping.legacy.fixture.CampsiteBuilder.aLargeSite;
-import static com.camping.legacy.fixture.ReservationRequestBuilder.aReservationRequest;
+import static com.camping.legacy.fixture.CampsiteTestBuilder.aLargeSite;
+import static com.camping.legacy.fixture.ReservationRequestTestBuilder.aReservationRequest;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;

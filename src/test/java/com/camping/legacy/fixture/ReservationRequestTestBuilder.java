@@ -8,7 +8,7 @@ import java.time.LocalDate;
  * ReservationRequest 테스트 데이터 빌더
  * 기본값이 설정되어 있어 필요한 필드만 오버라이드하면 됨
  */
-public class ReservationRequestBuilder {
+public class ReservationRequestTestBuilder {
 
     private String siteNumber = "A-1";
     private String customerName = "홍길동";
@@ -16,36 +16,36 @@ public class ReservationRequestBuilder {
     private LocalDate startDate = LocalDate.now().plusDays(7);
     private LocalDate endDate = LocalDate.now().plusDays(9);
 
-    public static ReservationRequestBuilder aReservationRequest() {
-        return new ReservationRequestBuilder();
+    public static ReservationRequestTestBuilder aReservationRequest() {
+        return new ReservationRequestTestBuilder();
     }
 
-    public ReservationRequestBuilder withSiteNumber(String siteNumber) {
+    public ReservationRequestTestBuilder withSiteNumber(String siteNumber) {
         this.siteNumber = siteNumber;
         return this;
     }
 
-    public ReservationRequestBuilder withCustomerName(String customerName) {
+    public ReservationRequestTestBuilder withCustomerName(String customerName) {
         this.customerName = customerName;
         return this;
     }
 
-    public ReservationRequestBuilder withPhoneNumber(String phoneNumber) {
+    public ReservationRequestTestBuilder withPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
         return this;
     }
 
-    public ReservationRequestBuilder withStartDate(LocalDate startDate) {
+    public ReservationRequestTestBuilder withStartDate(LocalDate startDate) {
         this.startDate = startDate;
         return this;
     }
 
-    public ReservationRequestBuilder withEndDate(LocalDate endDate) {
+    public ReservationRequestTestBuilder withEndDate(LocalDate endDate) {
         this.endDate = endDate;
         return this;
     }
 
-    public ReservationRequestBuilder withDates(LocalDate startDate, LocalDate endDate) {
+    public ReservationRequestTestBuilder withDates(LocalDate startDate, LocalDate endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
         return this;
