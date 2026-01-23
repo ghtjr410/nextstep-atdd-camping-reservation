@@ -21,7 +21,7 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    class BasePrice {
+    class 기본_가격 {
 
         @ParameterizedTest(name = "사이트 {0}는 기본가 {1}원")
         @CsvSource({
@@ -38,7 +38,7 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    class SingleDayPrice {
+    class 일박_가격_계산 {
 
         @Test
         void 평일_비성수기_대형_80000원() {
@@ -82,7 +82,7 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    class MultiDayPrice {
+    class 복합_기간_계산 {
 
         @Test
         void 평일_2박_합산() {
@@ -119,7 +119,7 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    class PeakSeasonBoundary {
+    class 성수기_경계값 {
 
         @ParameterizedTest(name = "{0}월 1일은 성수기={1}")
         @CsvSource({
@@ -141,7 +141,7 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    class DailyPrice {
+    class 일별_가격_계산 {
 
         @Test
         void 할증_적용_메서드_직접_테스트() {

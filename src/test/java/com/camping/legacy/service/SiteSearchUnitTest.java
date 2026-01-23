@@ -33,7 +33,7 @@ class SiteSearchUnitTest {
     private SiteService siteService;
 
     @Nested
-    class SearchDateValidation {
+    class 검색_날짜_검증 {
 
         @ParameterizedTest(name = "시작일={0}, 종료일={1}이면 예외")
         @MethodSource("nullDateProvider")

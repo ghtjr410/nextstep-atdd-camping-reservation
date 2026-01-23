@@ -45,7 +45,7 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    class SiteNumberValidation {
+    class 사이트_번호_검증 {
 
         @ParameterizedTest(name = "사이트 번호가 \"{0}\"이면 예외")
         @NullAndEmptySource
@@ -74,7 +74,7 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    class DateValidation {
+    class 날짜_검증 {
 
         @Test
         void 시작일이_null이면_예외() {
@@ -153,7 +153,7 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    class CustomerNameValidation {
+    class 고객명_검증 {
 
         @ParameterizedTest(name = "고객명이 \"{0}\"이면 예외")
         @NullAndEmptySource
@@ -208,7 +208,7 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    class PhoneNumberValidation {
+    class 전화번호_검증 {
 
         @ParameterizedTest(name = "전화번호 \"{0}\"는 길이 오류")
         @ValueSource(strings = {"010-1234-56", "010-1234-56789"})
@@ -264,7 +264,7 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    class DuplicateReservationValidation {
+    class 중복_예약_검증 {
 
         @Test
         void 해당_기간에_이미_예약이_존재하면_예외() {

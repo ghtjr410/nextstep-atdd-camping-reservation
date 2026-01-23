@@ -48,7 +48,7 @@ class ReservationCancelUnitTest {
     }
 
     @Nested
-    class ReservationIdValidation {
+    class 예약_ID_검증 {
 
         @Test
         void 존재하지_않는_예약_ID면_예외() {
@@ -61,7 +61,7 @@ class ReservationCancelUnitTest {
     }
 
     @Nested
-    class ConfirmationCodeValidation {
+    class 확인_코드_검증 {
 
         @ParameterizedTest(name = "확인코드가 \"{0}\"이면 예외")
         @NullAndEmptySource
@@ -76,7 +76,7 @@ class ReservationCancelUnitTest {
     }
 
     @Nested
-    class CancellationStatusValidation {
+    class 취소_상태_검증 {
 
         @Test
         void 사전_취소_시_CANCELLED_상태() {
@@ -119,7 +119,7 @@ class ReservationCancelUnitTest {
     }
 
     @Nested
-    class DateBoundaryTest {
+    class 날짜_경계값_테스트 {
 
         @Test
         void 시작일_하루_전_취소는_CANCELLED() {

@@ -22,7 +22,7 @@ class PointCalculatorTest {
     }
 
     @Nested
-    class PointRate {
+    class 포인트_적립률 {
 
         @Test
         void 기본_적립률은_5퍼센트() {
@@ -71,7 +71,7 @@ class PointCalculatorTest {
     }
 
     @Nested
-    class PointCalculation {
+    class 포인트_계산 {
 
         @Test
         void 비성수기_평일_100000원_5퍼센트_적립() {
@@ -106,7 +106,7 @@ class PointCalculatorTest {
     }
 
     @Nested
-    class PointWithAutoPrice {
+    class 가격_자동_계산_후_포인트 {
 
         @Test
         void 비성수기_평일_대형_1박_포인트() {
@@ -132,7 +132,7 @@ class PointCalculatorTest {
     }
 
     @Nested
-    class WeekendCheck {
+    class 주말_포함_여부_확인 {
 
         @Test
         void 월화수_주말_미포함() {
@@ -159,7 +159,7 @@ class PointCalculatorTest {
     }
 
     @Nested
-    class BoundaryTests {
+    class 경계값_테스트 {
 
         @ParameterizedTest(name = "{0}월은 성수기 적립률={1}")
         @CsvSource({
