@@ -5,9 +5,6 @@ import com.camping.legacy.dto.ReservationRequest;
 import com.camping.legacy.repository.CampsiteRepository;
 import com.camping.legacy.repository.ReservationRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,8 +26,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("예약 생성 단위 테스트")
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class ReservationCreateUnitTest {
 
     @Mock
@@ -50,7 +45,6 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    @DisplayName("사이트 번호 검증")
     class SiteNumberValidation {
 
         @ParameterizedTest(name = "사이트 번호가 \"{0}\"이면 예외")
@@ -80,7 +74,6 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    @DisplayName("날짜 검증")
     class DateValidation {
 
         @Test
@@ -160,7 +153,6 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    @DisplayName("고객명 검증")
     class CustomerNameValidation {
 
         @ParameterizedTest(name = "고객명이 \"{0}\"이면 예외")
@@ -216,7 +208,6 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    @DisplayName("전화번호 검증")
     class PhoneNumberValidation {
 
         @ParameterizedTest(name = "전화번호 \"{0}\"는 길이 오류")
@@ -273,7 +264,6 @@ class ReservationCreateUnitTest {
     }
 
     @Nested
-    @DisplayName("중복 예약 검증")
     class DuplicateReservationValidation {
 
         @Test

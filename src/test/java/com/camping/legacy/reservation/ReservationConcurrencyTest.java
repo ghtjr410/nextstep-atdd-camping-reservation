@@ -6,7 +6,6 @@ import com.camping.legacy.repository.CampsiteRepository;
 import com.camping.legacy.repository.ReservationRepository;
 import com.camping.legacy.service.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-@DisplayName("예약 동시성 테스트")
 class ReservationConcurrencyTest {
 
     @Autowired
@@ -47,8 +45,7 @@ class ReservationConcurrencyTest {
     }
 
     @Test
-    @DisplayName("동일 사이트에 동시 예약 요청 시 1건만 성공해야 한다")
-    void 동시_예약_요청시_1건만_성공() throws InterruptedException {
+    void 동일_사이트에_동시_예약_요청_시_1건만_성공해야_한다() throws InterruptedException {
         // given
         int threadCount = 2;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);

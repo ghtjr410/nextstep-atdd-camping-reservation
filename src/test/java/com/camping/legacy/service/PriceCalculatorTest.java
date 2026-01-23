@@ -1,9 +1,6 @@
 package com.camping.legacy.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,8 +11,6 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("PriceCalculator 단위 테스트")
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class PriceCalculatorTest {
 
     private PriceCalculator priceCalculator;
@@ -26,7 +21,6 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    @DisplayName("기본 가격")
     class BasePrice {
 
         @ParameterizedTest(name = "사이트 {0}는 기본가 {1}원")
@@ -44,7 +38,6 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    @DisplayName("1박 가격 계산")
     class SingleDayPrice {
 
         @Test
@@ -89,7 +82,6 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    @DisplayName("복합 기간 계산")
     class MultiDayPrice {
 
         @Test
@@ -127,7 +119,6 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    @DisplayName("성수기 경계값")
     class PeakSeasonBoundary {
 
         @ParameterizedTest(name = "{0}월 1일은 성수기={1}")
@@ -150,7 +141,6 @@ class PriceCalculatorTest {
     }
 
     @Nested
-    @DisplayName("일별 가격 계산")
     class DailyPrice {
 
         @Test

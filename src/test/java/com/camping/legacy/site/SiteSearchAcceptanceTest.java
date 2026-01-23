@@ -3,9 +3,6 @@ package com.camping.legacy.site;
 import com.camping.legacy.common.AcceptanceTest;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -15,8 +12,6 @@ import static com.camping.legacy.step.ReservationStep.*;
 import static com.camping.legacy.step.SiteStep.searchSites;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("사이트 검색")
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class SiteSearchAcceptanceTest extends AcceptanceTest {
 
     private static final String SITE_A1 = "A-1";

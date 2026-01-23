@@ -5,9 +5,6 @@ import com.camping.legacy.domain.Reservation;
 import com.camping.legacy.repository.CampsiteRepository;
 import com.camping.legacy.repository.ReservationRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,8 +25,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("예약 취소 단위 테스트")
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class ReservationCancelUnitTest {
 
     @Mock
@@ -53,7 +48,6 @@ class ReservationCancelUnitTest {
     }
 
     @Nested
-    @DisplayName("예약 ID 검증")
     class ReservationIdValidation {
 
         @Test
@@ -67,7 +61,6 @@ class ReservationCancelUnitTest {
     }
 
     @Nested
-    @DisplayName("확인 코드 검증")
     class ConfirmationCodeValidation {
 
         @ParameterizedTest(name = "확인코드가 \"{0}\"이면 예외")
@@ -83,7 +76,6 @@ class ReservationCancelUnitTest {
     }
 
     @Nested
-    @DisplayName("취소 상태 검증")
     class CancellationStatusValidation {
 
         @Test
@@ -127,7 +119,6 @@ class ReservationCancelUnitTest {
     }
 
     @Nested
-    @DisplayName("날짜 경계값 테스트")
     class DateBoundaryTest {
 
         @Test

@@ -3,9 +3,6 @@ package com.camping.legacy.service;
 import com.camping.legacy.dto.SiteSearchRequest;
 import com.camping.legacy.repository.CampsiteRepository;
 import com.camping.legacy.repository.ReservationRepository;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("사이트 검색 단위 테스트")
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class SiteSearchUnitTest {
 
     @Mock
@@ -38,7 +33,6 @@ class SiteSearchUnitTest {
     private SiteService siteService;
 
     @Nested
-    @DisplayName("검색 날짜 검증")
     class SearchDateValidation {
 
         @ParameterizedTest(name = "시작일={0}, 종료일={1}이면 예외")

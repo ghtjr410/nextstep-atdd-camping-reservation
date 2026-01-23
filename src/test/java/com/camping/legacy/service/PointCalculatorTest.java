@@ -1,9 +1,6 @@
 package com.camping.legacy.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,8 +10,6 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("PointCalculator 단위 테스트")
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class PointCalculatorTest {
 
     private PointCalculator pointCalculator;
@@ -27,7 +22,6 @@ class PointCalculatorTest {
     }
 
     @Nested
-    @DisplayName("포인트 적립률")
     class PointRate {
 
         @Test
@@ -77,7 +71,6 @@ class PointCalculatorTest {
     }
 
     @Nested
-    @DisplayName("포인트 계산")
     class PointCalculation {
 
         @Test
@@ -113,7 +106,6 @@ class PointCalculatorTest {
     }
 
     @Nested
-    @DisplayName("가격 자동 계산 후 포인트")
     class PointWithAutoPrice {
 
         @Test
@@ -140,7 +132,6 @@ class PointCalculatorTest {
     }
 
     @Nested
-    @DisplayName("주말 포함 여부 확인")
     class WeekendCheck {
 
         @Test
@@ -168,7 +159,6 @@ class PointCalculatorTest {
     }
 
     @Nested
-    @DisplayName("경계값 테스트")
     class BoundaryTests {
 
         @ParameterizedTest(name = "{0}월은 성수기 적립률={1}")
